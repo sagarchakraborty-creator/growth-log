@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Growth Log</title>
+  <meta name="description" content="Daily one-minute check-in for health, fitness, learning and habits, with streaks and trends.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#EEF2F0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0E1513" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Growth Log">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i style="background:var(--health)"></i><i style="background:var(--fitness)"></i><i style="background:var(--learning)"></i><i style="background:var(--mind)"></i></span>Growth Log</div>
+    <div class="top-right">
+      <button id="installBtn" class="ghost" type="button" hidden>Install</button>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" id="t-today" aria-selected="true" data-view="today">Today</button>
+        <button class="tab" role="tab" id="t-trends" aria-selected="false" data-view="trends">Trends</button>
+        <button class="tab" role="tab" id="t-setup" aria-selected="false" data-view="setup">Setup</button>
+      </nav>
+    </div>
+  </header>
+  <div class="whobar"><span class="lbl">Logging for</span><div class="chips who" id="who" role="group" aria-label="Whose log"></div></div>
+  <div id="offlineBar" class="bar bar-warn" hidden>You are offline. Your entries still save on this phone.</div>
+  <div id="updateBar" class="bar bar-info" hidden>New version ready. <button id="reloadBtn" class="link" type="button">Tap to refresh</button></div>
+  <div id="banner" class="banner" hidden></div>
+
+  <!-- TODAY -->
+  <section id="v-today" style="display:flex;flex-direction:column;gap:16px">
+    <div class="daybar">
+      <button class="iconbtn" id="prev" aria-label="Previous day">&#8249;</button>
+      <div><div class="daylabel" id="dayLabel">Today</div><div class="daysub" id="daySub"></div></div>
+      <button class="iconbtn" id="next" aria-label="Next day">&#8250;</button>
+      <button class="ghost" id="goToday">Jump to today</button>
+      <span class="save" id="saveState"></span>
+    </div>
+    <div class="rings" id="rings"></div>
+
+    <div class="cards">
+      <article class="card" style="--c:var(--health)">
+        <h2><span class="sw"></span>Health</h2>
+        <div class="field"><span class="lbl">Sleep last night</span>
+          <div class="stepper" data-field="sleep" data-step="0.5" data-start="7" data-max="14"><button type="button" data-d="-1" aria-label="Less sleep">&minus;</button><output>—</output><span class="unit">hours</span><button type="button" data-d="1" aria-label="More sleep">+</button><span class="goal" data-goal="sleep"></span></div></div>
+        <div class="field"><span class="lbl">Water</span>
+          <div class="stepper" data-field="water" data-step="1" data-start="1" data-max="20"><button type="button" data-d="-1" aria-label="Less water">&minus;</button><output>—</output><span class="unit">glasses</span><button type="button" data-d="1" aria-label="More water">+</button><span class="goal" data-goal="water"></span></div></div>
+        <div class="field"><span class="lbl">Mood</span>
+          <div class="chips scale" data-field="mood"></div></div>
+        <div class="field"><span class="lbl">Energy</span>
+          <div class="chips scale" data-field="energy"></div></div>
+        <div class="field"><label for="f-weight">Weight (kg, optional)</label>
+          <input class="txt num" id="f-weight" data-text="weight" type="number" inputmode="decimal" step="0.1" min="20" max="300" placeholder="e.g. 72.4"></div>
+      </article>
+
+      <article class="card" style="--c:var(--fitness)">
+        <h2><span class="sw"></span>Fitness</h2>
+        <div class="field"><span class="lbl">Workout</span>
+          <div class="chips" data-field="wtype" id="wtypes"></div></div>
+        <div class="field"><span class="lbl">Active minutes</span>
+          <div class="stepper" data-field="wmin" data-step="5" data-start="15" data-max="600"><button type="button" data-d="-1" aria-label="Fewer minutes">&minus;</button><output>—</output><span class="unit">min</span><button type="button" data-d="1" aria-label="More minutes">+</button><span class="goal" data-goal="workout"></span></div></div>
+        <div class="field"><label for="f-steps">Steps</label>
+          <input class="txt num" id="f-steps" data-text="steps" type="number" inputmode="numeric" step="100" min="0" placeholder="e.g. 8500"></div>
+      </article>
+
+      <article class="card" style="--c:var(--learning)">
+        <h2><span class="sw"></span>Learning</h2>
+        <div class="field"><span class="lbl">Focused learning</span>
+          <div class="stepper" data-field="learn" data-step="5" data-start="15" data-max="720"><button type="button" data-d="-1" aria-label="Fewer minutes">&minus;</button><output>—</output><span class="unit">min</span><button type="button" data-d="1" aria-label="More minutes">+</button><span class="goal" data-goal="learn"></span></div></div>
+        <div class="field"><label for="f-topic">What did you study?</label>
+          <input class="txt" id="f-topic" data-text="topic" type="text" maxlength="120" placeholder="e.g. SQL window functions, Atomic Habits ch. 4"></div>
+        <div class="field"><label for="f-takeaway">One takeaway</label>
+          <input class="txt" id="f-takeaway" data-text="takeaway" type="text" maxlength="240" placeholder="The one thing worth remembering"></div>
+      </article>
+
+      <article class="card" style="--c:var(--mind)">
+        <h2><span class="sw"></span>Mind &amp; habits</h2>
+        <div class="habits" id="habitList"></div>
+        <div class="field"><span class="lbl">Phone screen time</span>
+          <div class="stepper" data-field="screen" data-step="15" data-start="60" data-max="1440"><button type="button" data-d="-1" aria-label="Less screen time">&minus;</button><output>—</output><span class="unit">min</span><button type="button" data-d="1" aria-label="More screen time">+</button><span class="goal" data-goal="screen"></span></div></div>
+        <div class="field"><label for="f-note">Note for the day</label>
+          <textarea class="txt" id="f-note" data-text="note" maxlength="600" placeholder="What went well, what to change tomorrow"></textarea></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- TRENDS -->
+  <section id="v-trends" hidden>
+    <div id="trendsBody" style="display:flex;flex-direction:column;gap:16px"></div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="v-setup" hidden>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+        <h2 class="sec-h" style="margin:0">Daily goals</h2>
+        <p class="hint" style="margin:0">An area counts as done for the day when you reach its goal. Streaks and rings use these numbers.</p>
+        <div class="goals" id="goalFields"></div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+        <h2 class="sec-h" style="margin:0">Daily habits</h2>
+        <p class="hint" style="margin:0">These appear as tick boxes under Mind &amp; habits. Removing one keeps its ticks in past days.</p>
+        <div id="habitEdit" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="hrow"><input class="txt" id="newHabit" type="text" maxlength="60" placeholder="Add a habit, e.g. No phone after 11 pm"><button class="btn sec" id="addHabit" type="button">Add</button></div>
+      </div>
+      <div class="actions"><button class="btn" id="saveSetup" type="button">Save setup</button><span class="hint" id="setupState"></span></div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+        <h2 class="sec-h" style="margin:0">Backup</h2>
+        <p class="hint" style="margin:0">Your log is saved on this phone only. Export a backup now and then, or to move your log to another phone. Importing a backup replaces what is on this phone.</p>
+        <div class="actions">
+          <button class="btn sec" id="exportJson" type="button">Export backup (.json)</button>
+          <button class="btn sec" id="exportCsv" type="button">Export days (.csv)</button>
+          <label class="btn sec filebtn" for="importFile">Import backup<input id="importFile" type="file" accept=".json,application/json"></label>
+        </div>
+        <span class="hint" id="backupState"></span>
+      </div>
+      <p class="foot" id="versionLabel"></p>
+    </div>
+  </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
